@@ -1,0 +1,243 @@
+---
+title: "Merging Data"
+author: "Ethan Ie"
+date: "5/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Importing libraries
+```{r}
+library(readxl)
+library(dplyr)
+library(stringr)
+library(data.table)
+```
+
+## Importing data
+```{r}
+ct_puma_crosswalk <- read.csv("2010_Census_Tract_to_2010_PUMA.txt", stringsAsFactors = F)
+puma_num_crosswalk <- read.csv("PumaLA.csv", stringsAsFactors = F)
+
+homeless15 <- read_excel("homeless/Homeless_2015.xlsx", sheet=1) %>% 
+  select(tract = Tract, Year, totHomeless = `2015_Total`)
+homeless16 <- read_excel("homeless/Homeless_2016.xlsx", sheet=3) %>% 
+  select(tract = censusTract, Year, totHomeless = totPeople)
+homeless17 <- read_excel("homeless/Homeless_2017.xlsx", sheet=3) %>% 
+  select(tract, Year, totHomeless = totPeople)
+homeless18 <- read_excel("homeless/Homeless_2018.xlsx", sheet=3) %>% 
+  select(tract, Year, totHomeless = totPeople)
+homeless_df <- rbind(homeless15,homeless16,homeless17,homeless18)
+
+vacancy15 <- read.csv("vacancy/vacancy2015.csv", stringsAsFactors = F)
+vacancy16 <- read.csv("vacancy/vacancy2016.csv", stringsAsFactors = F)
+vacancy17 <- read.csv("vacancy/vacancy2017.csv", stringsAsFactors = F)
+vacancy18 <- read.csv("vacancy/vacancy2018.csv", stringsAsFactors = F)
+
+vacancy15$Year <- 2015
+vacancy16$Year <- 2016
+vacancy17$Year <- 2017
+vacancy18$Year <- 2018
+vacancy_df <- rbind(vacancy15,vacancy16,vacancy17,vacancy18)
+
+travel15 <- read.csv("travel_time/travel_time_work2015.csv", stringsAsFactors = F)
+travel16 <- read.csv("travel_time/travel_time_work2016.csv", stringsAsFactors = F)
+travel17 <- read.csv("travel_time/travel_time_work2017.csv", stringsAsFactors = F)
+travel18 <- read.csv("travel_time/travel_time_work2018.csv", stringsAsFactors = F)
+
+travel15$Year <- 2015
+travel16$Year <- 2016
+travel17$Year <- 2017
+travel18$Year <- 2018
+travel_df <- rbind(travel15,travel16,travel17,travel18)
+
+age15 <- read.csv("age/age2015.csv", stringsAsFactors = F)
+age16 <- read.csv("age/age2016.csv", stringsAsFactors = F)
+age17 <- read.csv("age/age2017.csv", stringsAsFactors = F)
+age18 <- read.csv("age/age2018.csv", stringsAsFactors = F)
+
+age15$Year <- 2015
+age16$Year <- 2016
+age17$Year <- 2017
+age18$Year <- 2018
+age_df <- rbind(age15,age16,age17,age18)
+
+employ15 <- read.csv("employ/employ2015.csv", stringsAsFactors = F)
+employ16 <- read.csv("employ/employ2016.csv", stringsAsFactors = F)
+employ17 <- read.csv("employ/employ2017.csv", stringsAsFactors = F)
+employ18 <- read.csv("employ/employ2018.csv", stringsAsFactors = F)
+
+employ15$Year <- 2015
+employ16$Year <- 2016
+employ17$Year <- 2017
+employ18$Year <- 2018
+employ_df <- rbind(employ15,employ16,employ17,employ18)
+
+income15 <- read.csv("income/income2015.csv", stringsAsFactors = F)
+income16 <- read.csv("income/income2016.csv", stringsAsFactors = F)
+income17 <- read.csv("income/income2017.csv", stringsAsFactors = F)
+income18 <- read.csv("income/income2018.csv", stringsAsFactors = F)
+
+income15$Year <- 2015
+income16$Year <- 2016
+income17$Year <- 2017
+income18$Year <- 2018
+income_df <- rbind(income15,income16,income17,income18)
+
+rent15 <- read.csv("rent/rent2015.csv", stringsAsFactors = F)
+rent16 <- read.csv("rent/rent2016.csv", stringsAsFactors = F)
+rent17 <- read.csv("rent/rent2017.csv", stringsAsFactors = F)
+rent18 <- read.csv("rent/rent2018.csv", stringsAsFactors = F)
+
+rent15$Year <- 2015
+rent16$Year <- 2016
+rent17$Year <- 2017
+rent18$Year <- 2018
+rent_df <- rbind(rent15,rent16,rent17,rent18)
+
+sex15 <- read.csv("sex/sex2015.csv", stringsAsFactors = F)
+sex16 <- read.csv("sex/sex2016.csv", stringsAsFactors = F)
+sex17 <- read.csv("sex/sex2017.csv", stringsAsFactors = F)
+sex18 <- read.csv("sex/sex2018.csv", stringsAsFactors = F)
+
+sex15$Year <- 2015
+sex16$Year <- 2016
+sex17$Year <- 2017
+sex18$Year <- 2018
+sex_df <- rbind(sex15,sex16,sex17,sex18)
+
+asian15 <- read.csv("asian/asian2015.csv", stringsAsFactors = F)
+asian16 <- read.csv("asian/asian2016.csv", stringsAsFactors = F)
+asian17 <- read.csv("asian/asian2017.csv", stringsAsFactors = F)
+asian18 <- read.csv("asian/asian2018.csv", stringsAsFactors = F)
+
+asian15$Year <- 2015
+asian16$Year <- 2016
+asian17$Year <- 2017
+asian18$Year <- 2018
+asian_df <- rbind(asian15,asian16,asian17,asian18)
+
+black15 <- read.csv("black/black2015.csv", stringsAsFactors = F)
+black16 <- read.csv("black/black2016.csv", stringsAsFactors = F)
+black17 <- read.csv("black/black2017.csv", stringsAsFactors = F)
+black18 <- read.csv("black/black2018.csv", stringsAsFactors = F)
+
+black15$Year <- 2015
+black16$Year <- 2016
+black17$Year <- 2017
+black18$Year <- 2018
+black_df <- rbind(black15,black16,black17,black18)
+
+hisp15 <- read.csv("hisp/hisp2015.csv", stringsAsFactors = F)
+hisp16 <- read.csv("hisp/hisp2016.csv", stringsAsFactors = F)
+hisp17 <- read.csv("hisp/hisp2017.csv", stringsAsFactors = F)
+hisp18 <- read.csv("hisp/hisp2018.csv", stringsAsFactors = F)
+
+hisp15$Year <- 2015
+hisp16$Year <- 2016
+hisp17$Year <- 2017
+hisp18$Year <- 2018
+hisp_df <- rbind(hisp15,hisp16,hisp17,hisp18)
+
+white15 <- read.csv("white/white2015.csv", stringsAsFactors = F)
+white16 <- read.csv("white/white2016.csv", stringsAsFactors = F)
+white17 <- read.csv("white/white2017.csv", stringsAsFactors = F)
+white18 <- read.csv("white/white2018.csv", stringsAsFactors = F)
+
+white15$Year <- 2015
+white16$Year <- 2016
+white17$Year <- 2017
+white18$Year <- 2018
+white_df <- rbind(white15,white16,white17,white18)
+```
+
+```{r}
+ct_puma_crosswalk <- ct_puma_crosswalk %>% select(tract = TRACTCE,
+                                                  puma = PUMA5CE)
+puma_num_crosswalk <- puma_num_crosswalk %>% select(puma = PUMA,
+                                                    Name)
+vacancy_df <- vacancy_df %>% select(Name = Selected.Geographies, 
+                                    occupied_housing = N.A..GQ.occupied., 
+                                    for_sale_housing = For.sale.only,
+                                    sold_unoccupied = Sold..not.occupied,
+                                    Year)
+
+names(travel_df)[1] <- "Name"
+names(age_df)[1] <- "Name"
+names(employ_df)[1] <- "Name"
+names(income_df) <- c("Name", "Income", "Year")
+names(rent_df)[1] <- "Name"
+names(sex_df) <- c("Name", "totalPopSex", "Male", "Female", "Year")
+
+asian_df <- asian_df %>% select(Name = Selected.Geographies,
+                                asianYes = Yes,
+                                Year)
+
+black_df <- black_df %>% select(Name = Selected.Geographies,
+                                blackYes = Yes,
+                                Year)
+
+names(hisp_df)[1] <- "Name"
+names(hisp_df)[2] <- "totalPopRace"
+
+white_df <- white_df %>% select(Name = Selected.Geographies,
+                                whiteYes = Yes,
+                                Year)
+
+ct_puma_crosswalk$tract <- str_pad(ct_puma_crosswalk$tract, width = 6, pad = "0")
+ct_puma_crosswalk$puma <- str_pad(ct_puma_crosswalk$puma, width = 5, pad = "0")
+puma_num_crosswalk$puma <- substr(puma_num_crosswalk$puma, 2, 6)
+
+homeless_df$tract <- as.character(homeless_df$tract)
+vacancy_df$Name <- apply(vacancy_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+travel_df$Name <- apply(travel_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+age_df$Name <- apply(age_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+employ_df$Name <- apply(employ_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+income_df$Name <- apply(income_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+rent_df$Name <- apply(rent_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+sex_df$Name <- apply(sex_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+asian_df$Name <- apply(asian_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+black_df$Name <- apply(black_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+hisp_df$Name <- apply(hisp_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+white_df$Name <- apply(white_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+```
+
+```{r}
+merged <- left_join(homeless_df, ct_puma_crosswalk, by="tract")
+
+setDT(merged)
+merged <- merged[, .(sumHomeless = sum(totHomeless, na.rm = TRUE)),
+                 by = list(Year, puma)]
+
+merged <- merged[!is.na(merged$puma),]
+```
+
+```{r}
+merged <- left_join(merged, puma_num_crosswalk, by="puma")
+merged <- merged[!is.na(merged$Name),]
+merged <- left_join(merged, vacancy_df, by=c("Name","Year"))
+merged <- left_join(merged, travel_df, by=c("Name","Year"))
+merged <- left_join(merged, age_df, by=c("Name","Year"))
+merged <- left_join(merged, employ_df, by=c("Name","Year"))
+merged <- left_join(merged, income_df, by=c("Name","Year"))
+merged <- left_join(merged, rent_df, by=c("Name","Year"))
+merged <- left_join(merged, sex_df, by=c("Name","Year"))
+merged <- left_join(merged, asian_df, by=c("Name","Year"))
+merged <- left_join(merged, black_df, by=c("Name","Year"))
+merged <- left_join(merged, hisp_df, by=c("Name","Year"))
+merged <- left_join(merged, white_df, by=c("Name","Year"))
+```
+
+```{r}
+head(merged)
+```
+
+## Exporting data
+```{r}
+write.csv(merged, "merged.csv")
+```
+
+

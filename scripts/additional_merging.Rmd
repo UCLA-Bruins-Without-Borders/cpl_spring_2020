@@ -1,0 +1,79 @@
+---
+title: "Additional merging"
+author: "Ethan Ie"
+date: "5/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+```
+
+## Importing data
+```{r}
+to_merge <- read.csv("merged.csv", stringsAsFactors = F)
+
+elec15 <- read.csv("elec/elec2015.csv", stringsAsFactors = F)
+elec16 <- read.csv("elec/elec2016.csv", stringsAsFactors = F)
+elec17 <- read.csv("elec/elec2017.csv", stringsAsFactors = F)
+elec18 <- read.csv("elec/elec2018.csv", stringsAsFactors = F)
+
+elec15$Year <- 2015
+elec16$Year <- 2016
+elec17$Year <- 2017
+elec18$Year <- 2018
+elec_df <- rbind(elec15,elec16,elec17,elec18)
+
+gas15 <- read.csv("gas/gas2015.csv", stringsAsFactors = F)
+gas16 <- read.csv("gas/gas2016.csv", stringsAsFactors = F)
+gas17 <- read.csv("gas/gas2017.csv", stringsAsFactors = F)
+gas18 <- read.csv("gas/gas2018.csv", stringsAsFactors = F)
+
+gas15$Year <- 2015
+gas16$Year <- 2016
+gas17$Year <- 2017
+gas18$Year <- 2018
+gas_df <- rbind(gas15,gas16,gas17,gas18)
+
+transport15 <- read.csv("transport/transport2015.csv", stringsAsFactors = F)
+transport16 <- read.csv("transport/transport2016.csv", stringsAsFactors = F)
+transport17 <- read.csv("transport/transport2017.csv", stringsAsFactors = F)
+transport18 <- read.csv("transport/transport2018.csv", stringsAsFactors = F)
+
+transport15$Year <- 2015
+transport16$Year <- 2016
+transport17$Year <- 2017
+transport18$Year <- 2018
+transport_df <- rbind(transport15,transport16,transport17,transport18)
+```
+
+```{r}
+names(elec_df) <- c("Name", "elecPrice", "Year")
+names(gas_df) <- c("Name", "gasPrice", "Year")
+transport_df <- transport_df %>% select(Name = Selected.Geographies,
+                                        car_truck_van = Car.truck.van,
+                                        bus = Bus.or.trolley.bus,
+                                        Railroad,
+                                        Walked,
+                                        Year)
+
+elec_df$Name <- apply(elec_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+gas_df$Name <- apply(gas_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+transport_df$Name <- apply(transport_df, 1, function(x) substr(x[1], 1, str_length(x) - 12))
+```
+
+```{r}
+merged <- left_join(to_merge, elec_df, by=c("Name","Year"))
+merged <- left_join(merged, gas_df, by=c("Name","Year"))
+merged <- left_join(merged, transport_df, by=c("Name","Year"))
+```
+
+## Exporting data
+```{r}
+write.csv(merged, "merged.csv")
+```
