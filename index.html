@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CPL Homelessness Project</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAWVJkH-RJBR8AJDTpVPtZpt8bRsLsFW4&callback=initMap&libraries=&v=weekly"
+      defer
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+    <script src="./data.js"></script>
+    <script src="./app.js"></script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="header">
+        <p>Bruins without Borders</p>
+      </div>
+      <div id="content">
+        <p class="title">Homelessness Data</p>
+        <img src="cluster_legend.png" id="legend" />
+        <div class="section">
+          <div id="map"></div>
+          <div id="capture">
+            <p>Click on a PUMA to view more information.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
